@@ -2,7 +2,8 @@
 
 import numpy as np
 import pytest
-from astropy.table import MaskedColumn, Table
+import astropy.units as u
+from astropy.table import MaskedColumn, QTable, Table
 
 from ads_tools import filter_ads_result
 from models.errors import ErrorCode, MCPError
@@ -23,6 +24,19 @@ class TestTableUtils:
         table = Table({"ra": [1.0]})
         table["ra"].unit = "deg"
         assert table_to_dict(table)["columns"][0]["unit"] == "deg"
+
+    def test_quantity_columns_carry_description(self):
+        table = QTable({"name": ["WASP-18 b"], "period": [0.94] * u.day}, masked=True)
+        table["period"].info.description = "Orbital period"
+        # max_rows=0 keeps this test about column metadata, not cell conversion
+        columns = table_to_dict(table, max_rows=0)["columns"]
+        assert columns[1] == {
+            "name": "period",
+            "dtype": "float64",
+            "unit": "d",
+            "description": "Orbital period",
+        }
+        assert "description" not in columns[0]
 
     def test_none_table(self):
         assert table_to_dict(None)["row_count"] == 0

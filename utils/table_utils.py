@@ -95,8 +95,11 @@ def table_to_dict(table: Table | None, max_rows: int | None = None) -> dict[str,
         }
         if table[col].unit:
             col_info["unit"] = str(table[col].unit)
-        if table[col].description:
-            col_info["description"] = table[col].description
+        # Metadata lives on .info for every column type; Quantity columns of a
+        # QTable have no .description attribute of their own.
+        description = table[col].info.description
+        if description:
+            col_info["description"] = description
         columns.append(col_info)
 
     # Convert data (truncate first so huge tables are never fully converted)
