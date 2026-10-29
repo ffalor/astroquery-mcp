@@ -2,7 +2,10 @@
 
 import numpy as np
 import pytest
-from astropy.table import MaskedColumn, Table
+import astropy.units as u
+from astropy.coordinates import SkyCoord
+from astropy.table import MaskedColumn, QTable, Table
+from astropy.time import Time
 
 from ads_tools import filter_ads_result
 from models.errors import ErrorCode, MCPError
@@ -23,6 +26,29 @@ class TestTableUtils:
         table = Table({"ra": [1.0]})
         table["ra"].unit = "deg"
         assert table_to_dict(table)["columns"][0]["unit"] == "deg"
+
+    def test_quantity_columns_carry_description(self):
+        table = QTable({"name": ["WASP-18 b"], "period": [0.94] * u.day}, masked=True)
+        table["period"].info.description = "Orbital period"
+        # max_rows=0 keeps this test about column metadata, not cell conversion
+        columns = table_to_dict(table, max_rows=0)["columns"]
+        assert columns[1] == {
+            "name": "period",
+            "dtype": "float64",
+            "unit": "d",
+            "description": "Orbital period",
+        }
+        assert "description" not in columns[0]
+
+    def test_mixin_columns_carry_metadata(self):
+        # e.g. the sky_coord column astroquery adds to NASA Exoplanet Archive results
+        table = QTable({"t": Time([60000.0], format="mjd")})
+        table["c"] = SkyCoord([1] * u.deg, [2] * u.deg)
+        columns = table_to_dict(table, max_rows=0)["columns"]
+        assert columns == [
+            {"name": "t", "dtype": "object"},
+            {"name": "c", "dtype": "object", "unit": "deg,deg"},
+        ]
 
     def test_none_table(self):
         assert table_to_dict(None)["row_count"] == 0

@@ -89,14 +89,17 @@ def table_to_dict(table: Table | None, max_rows: int | None = None) -> dict[str,
     # Extract column information
     columns = []
     for col in table.colnames:
+        # Metadata lives on .info for every column type; mixin columns (Quantity,
+        # Time, SkyCoord) lack some of these attributes on the column itself.
+        info = table[col].info
         col_info = {
             "name": col,
-            "dtype": str(table[col].dtype),
+            "dtype": str(info.dtype),
         }
-        if table[col].unit:
-            col_info["unit"] = str(table[col].unit)
-        if table[col].description:
-            col_info["description"] = table[col].description
+        if info.unit:
+            col_info["unit"] = str(info.unit)
+        if info.description:
+            col_info["description"] = info.description
         columns.append(col_info)
 
     # Convert data (truncate first so huge tables are never fully converted)
