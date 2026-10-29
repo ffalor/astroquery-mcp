@@ -2,12 +2,14 @@
 
 import numpy as np
 import pytest
-from astropy.table import MaskedColumn, Table
+import astropy.units as u
+from astropy.table import MaskedColumn, QTable, Table
+from astropy.utils.masked import Masked
 
 from ads_tools import filter_ads_result
 from models.errors import ErrorCode, MCPError
 from utils.coord_utils import angular_separation, parse_coordinates, validate_coordinates
-from utils.table_utils import limit_table, select_columns, table_to_dict
+from utils.table_utils import limit_table, select_columns, table_to_dict, table_to_records
 
 
 class TestTableUtils:
@@ -18,6 +20,16 @@ class TestTableUtils:
         data = table_to_dict(table)["data"]
         assert [row["f"] for row in data] == [1.0, None, None]
         assert [row["m"] for row in data] == [1, None, 3]
+
+    def test_quantity_cells_serialize_as_values(self):
+        table = QTable()
+        table["per"] = Masked([1.5, 2.0, np.nan] * u.day, mask=[False, True, False])
+        table["mass"] = [3.0, 4.0, 5.0] * u.kg
+        table["vec"] = [[1.0, 2.0]] * 3 * u.m
+        records = table_to_records(table)
+        assert [row["per"] for row in records] == [1.5, None, None]
+        assert [row["mass"] for row in records] == [3.0, 4.0, 5.0]
+        assert records[0]["vec"] == [1.0, 2.0]
 
     def test_columns_carry_units(self):
         table = Table({"ra": [1.0]})

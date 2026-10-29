@@ -63,6 +63,9 @@ uses [Semantic Versioning](https://semver.org/).
 - `retry.py` and `http_client.py` could not be imported because `tenacity` was never installed.
 - Serializing array-valued Quantities and numpy arrays no longer fails (`float()`/`.item()` on
   arrays raised an error).
+- Tables with `Quantity` cells (`QTable` results, e.g. NASA Exoplanet Archive) no longer fail with
+  "cannot make a list of Quantities". Cells serialize as plain values (units stay in the column
+  metadata), and masked or NaN cells become `null`.
 
 ## [0.1.0] - 2026-09-28
 
