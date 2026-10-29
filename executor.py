@@ -229,6 +229,10 @@ def serialize_result(
         except UnicodeDecodeError:
             pass
 
+    # TAP queries (e.g. Gaia launch_job) return a Job; callers want its result table
+    if type(result).__name__ == "Job" and hasattr(result, "get_results"):
+        result = result.get_results()
+
     product = _store_product(result, artifacts)
     if product is not None:
         return product
