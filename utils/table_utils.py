@@ -4,6 +4,7 @@ from typing import Any
 import math
 
 from astropy.table import Table
+import astropy.units as u
 import numpy as np
 
 
@@ -18,6 +19,15 @@ def _make_serializable(value: Any) -> Any:
     """
     if value is None:
         return None
+
+    # Quantity subclasses ndarray but forbids .tolist(); units are reported per
+    # column, so serialize the bare value (masked cells become None)
+    if isinstance(value, u.Quantity):
+        if value.ndim > 0:
+            return [_make_serializable(v) for v in value]
+        if np.any(getattr(value, "mask", False)):
+            return None
+        value = getattr(value, "unmasked", value).value
 
     # Handle numpy types
     if isinstance(value, (np.integer, np.floating)):
