@@ -4,6 +4,7 @@ from typing import Any
 import math
 
 from astropy.table import Table
+import astropy.units as u
 import numpy as np
 
 
@@ -18,6 +19,12 @@ def _make_serializable(value: Any) -> Any:
     """
     if value is None:
         return None
+
+    # Quantity cells (QTable): the unit is reported per column, so keep the bare value
+    if isinstance(value, u.Quantity):
+        if np.any(getattr(value, "mask", False)):
+            return None
+        value = getattr(value, "unmasked", value).value
 
     # Handle numpy types
     if isinstance(value, (np.integer, np.floating)):
