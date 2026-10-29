@@ -60,6 +60,10 @@ uses [Semantic Versioning](https://semver.org/).
   (`uv run pytest -m network` runs them).
 
 ### Fixed
+- The `astroquery-mcp` console script is now installed. `pyproject.toml` had no
+  `[build-system]`, so uv treated the project as virtual and never installed it; it now builds
+  with hatchling, and `uv tool install` / `uvx --from git+...` work. MCP clients can launch
+  `astroquery-mcp` instead of `python /path/to/server.py`.
 - `retry.py` and `http_client.py` could not be imported because `tenacity` was never installed.
 - Serializing array-valued Quantities and numpy arrays no longer fails (`float()`/`.item()` on
   arrays raised an error).

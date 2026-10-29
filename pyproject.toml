@@ -19,6 +19,27 @@ dependencies = [
 [project.scripts]
 astroquery-mcp = "server:main"
 
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+# Modules live flat at the repo root and import each other as top-level names
+# (`from executor import ...`), so they are installed as top-level modules.
+[tool.hatch.build.targets.wheel]
+only-include = [
+    "ads_tools.py",
+    "artifacts.py",
+    "auth.py",
+    "config.py",
+    "executor.py",
+    "http_client.py",
+    "introspection.py",
+    "retry.py",
+    "server.py",
+    "models",
+    "utils",
+]
+
 [tool.fastmcp]
 name = "astroquery-mcp"
 
