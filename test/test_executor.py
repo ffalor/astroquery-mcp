@@ -5,6 +5,7 @@ import pytest
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
+from astroquery.utils.tap.model.job import Job
 
 import executor
 from executor import (
@@ -48,6 +49,14 @@ class TestSerializeResult:
     def test_list_of_tables(self):
         result = serialize_result([Table({"a": [1]}), Table({"a": [2]})])
         assert [r["data"][0]["a"] for r in result] == [1, 2]
+
+    def test_tap_job_serializes_its_results(self):
+        job = Job(async_job=False)
+        job.set_results(Table({"source_id": [1, 2], "parallax": [0.5, 1.2]}))
+        job.set_phase("COMPLETED")
+        result = serialize_result(job)
+        assert result["row_count"] == 2
+        assert result["data"] == [{"source_id": 1, "parallax": 0.5}, {"source_id": 2, "parallax": 1.2}]
 
     def test_scalar_skycoord(self):
         result = serialize_result(SkyCoord(ra=10 * u.deg, dec=20 * u.deg))

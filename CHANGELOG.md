@@ -63,6 +63,9 @@ uses [Semantic Versioning](https://semver.org/).
 - `retry.py` and `http_client.py` could not be imported because `tenacity` was never installed.
 - Serializing array-valued Quantities and numpy arrays no longer fails (`float()`/`.item()` on
   arrays raised an error).
+- TAP query functions that return a `Job` (`gaia.launch_job`, `gaia.launch_job_async`,
+  `gaia.cone_search`, ...) now return the job's result table instead of failing with
+  "Unable to serialize unknown type".
 
 ## [0.1.0] - 2026-09-28
 
