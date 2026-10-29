@@ -12,6 +12,7 @@ from astropy.io import fits
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
 from astropy import units as u
+from astroquery.utils.tap.model.job import Job
 
 from artifacts import COMPRESSION_EXTENSIONS, ArtifactCall, filename_from_url, get_store, working_directory
 from introspection import ASTROQUERY_MODULES, discover_all_functions, function_kind
@@ -218,6 +219,10 @@ def serialize_result(
     """
     if result is None:
         return None
+
+    # TAP queries (gaia.launch_job, cone_search, ...) return a Job; serialize its result table
+    if isinstance(result, Job):
+        result = result.get_results()
 
     if artifacts is None:
         artifacts = ArtifactCall(get_store(), "unknown")
