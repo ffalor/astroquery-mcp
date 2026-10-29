@@ -251,6 +251,14 @@ dependencies = [
 [project.scripts]
 your-package-mcp = "server:main"
 
+# Without a build backend the project is never installed and the script above is never created
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["server.py", "executor.py", "introspection.py", "utils"]  # your modules
+
 [tool.fastmcp]
 name = "your-package-mcp"
 ```
@@ -289,7 +297,13 @@ pip install -e .
 ### Run the Server
 
 ```bash
-# Run directly
+# Installed console script (created by `uv sync` / `pip install`)
+uv run astroquery-mcp
+
+# Without a checkout
+uvx --from git+https://github.com/NASA-IMPACT/astroquery-mcp astroquery-mcp
+
+# Or run the file directly
 python server.py
 
 # Or using fastmcp deploy (for MCP client integration)
@@ -406,8 +420,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 {
   "mcpServers": {
     "astroquery": {
-      "command": "python",
-      "args": ["/path/to/server.py"],
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/NASA-IMPACT/astroquery-mcp", "astroquery-mcp"],
       "env": {
         "API_DEV_KEY": "your-token-here"
       }
