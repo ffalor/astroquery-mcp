@@ -63,9 +63,10 @@ uses [Semantic Versioning](https://semver.org/).
 - `retry.py` and `http_client.py` could not be imported because `tenacity` was never installed.
 - Serializing array-valued Quantities and numpy arrays no longer fails (`float()`/`.item()` on
   arrays raised an error).
-- Results returned as an astropy `QTable` (e.g. NASA Exoplanet Archive `pscomppars`/`ps`
-  queries) no longer fail with `'MaskedQuantity' object has no 'description' member`. Column
-  descriptions are now read from `.info`, which every column type has.
+- Results with `Quantity`, `Time` or `SkyCoord` columns (e.g. NASA Exoplanet Archive
+  `pscomppars`/`ps` queries) no longer fail while reading column metadata
+  (`'MaskedQuantity' object has no 'description' member`). Column dtype, unit and description
+  are now read from `.info`, which every column type has.
 
 ## [0.1.0] - 2026-09-28
 
